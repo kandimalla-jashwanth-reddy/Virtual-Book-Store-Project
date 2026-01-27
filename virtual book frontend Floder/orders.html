@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Your Orders - Virtual Bookstore</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <!-- Navigation Bar -->
+    <nav class="navbar">
+        <div class="nav-logo">
+            <img src="images/logo.png" alt="Virtual Bookstore">
+        </div>
+        <div class="nav-items">
+            <div class="nav-item" id="user-greeting">
+                <a href="#" class="nav-link">
+                    <span class="nav-line1">Hello, User</span>
+                    <span class="nav-line2">Account & Lists</span>
+                </a>
+            </div>
+            <div class="nav-item">
+                <a href="books.html" class="nav-link">
+                    <span class="nav-line1">Back to</span>
+                    <span class="nav-line2">Books</span>
+                </a>
+            </div>
+            <div class="nav-item">
+                <a href="#" id="logout" class="nav-link">
+                    <span class="nav-line1">Sign Out</span>
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Secondary Navigation -->
+    <div class="sub-nav">
+        <div class="sub-nav-items">
+            <a href="books.html" class="sub-nav-link">Back to Books</a>
+        </div>
+    </div>
+
+    <!-- Orders Content -->
+    <div class="container">
+        <h1 class="section-title">Your Orders</h1>
+        
+        <div class="orders-container" id="ordersContainer">
+            <!-- Orders will be loaded here -->
+            <div class="empty-orders">
+                <i class="fas fa-box-open"></i>
+                <h3>You have no orders yet</h3>
+                <p>Start shopping to see your orders here</p>
+                <a href="books.html" class="auth-button">Shop Now</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-content">
+            <div class="footer-section">
+                <h3>Get to Know Us</h3>
+                <ul>
+                    <li><a href="#">About Us</a></li>
+                    <li><a href="#">Careers</a></li>
+                    <li><a href="#">Press Releases</a></li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h3>Make Money with Us</h3>
+                <ul>
+                    <li><a href="#">Sell books with us</a></li>
+                    <li><a href="#">Become an Affiliate</a></li>
+                    <li><a href="#">Advertise Your Products</a></li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h3>Payment Products</h3>
+                <ul>
+                    <li><a href="#">Amazon Business Card</a></li>
+                    <li><a href="#">Shop with Points</a></li>
+                    <li><a href="#">Reload Your Balance</a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <div class="footer-logo">
+                <img src="images/logo.png" alt="Virtual Bookstore">
+            </div>
+            <div class="footer-links">
+                <a href="#">Conditions of Use</a>
+                <a href="#">Privacy Notice</a>
+                <a href="#">Interest-Based Ads</a>
+            </div>
+            <div class="footer-copyright">
+                © 2023 Virtual Bookstore, Inc. or its affiliates
+            </div>
+        </div>
+    </footer>
+
+    <script src="main.js"></script>
+    <script>
+      document.addEventListener('DOMContentLoaded', loadOrders);
+    </script>
+</body>
+</html>

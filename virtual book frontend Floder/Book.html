@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Books - Virtual Bookstore</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <!-- Navigation Bar -->
+    <nav class="navbar">
+        <div class="nav-logo">
+            <img src="images/logo.png" alt="Virtual Bookstore">
+        </div>
+        <div class="nav-search">
+           
+            <input type="text" class="search-input" placeholder="Search for books...">
+            <button class="search-button">
+                <i class="fas fa-search"></i>
+            </button>
+        </div>
+        <div class="nav-items">
+            <div class="nav-item" id="user-greeting">
+                <a href="" class="nav-link">
+                    <span class="nav-line1">Hello, Sign in</span>
+                    <span class="nav-line2">Account & Lists</span>
+                </a>
+            </div>
+            <div class="nav-item">
+                <a href="orders.html" class="nav-link">
+                    <span class="nav-line1">Returns</span>
+                    <span class="nav-line2">& Orders</span>
+                </a>
+            </div>
+            <div class="nav-item">
+                <a href="cart.html" class="nav-link">
+                    <i class="fas fa-shopping-cart cart-icon"></i>
+                    <span class="cart-count">0</span>
+                    <span class="nav-line2">Cart</span>
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Secondary Navigation -->
+    <div class="sub-nav">
+        <div class="sub-nav-items">
+            <a href="#" class="sub-nav-link"><i class="fas fa-bars"></i> All</a>
+            <a href="#" class="sub-nav-link">Best Sellers</a>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="container-full">
+        <section class="book-section">
+            <h2 class="section-title"></h2>
+            <div class="books-grid books-grid-5" id="booksContainer"></div>
+        </section>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-content">
+            <div class="footer-section">
+                <h3>Get to Know Us</h3>
+                <ul>
+                    <li><a href="#">About Us</a></li>
+                    <li><a href="#">Careers</a></li>
+                    <li><a href="#">Press Releases</a></li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h3>Make Money with Us</h3>
+                <ul>
+                    <li><a href="#">Sell books with us</a></li>
+                    <li><a href="#">Become an Affiliate</a></li>
+                    <li><a href="#">Advertise Your Products</a></li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h3>Payment Products</h3>
+                <ul>
+                    <li><a href="#">Amazon Business Card</a></li>
+                    <li><a href="#">Shop with Points</a></li>
+                    <li><a href="#">Reload Your Balance</a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <div class="footer-logo">
+                <img src="images/logo.png" alt="Virtual Bookstore">
+            </div>
+            <div class="footer-links">
+                <a href="#">Conditions of Use</a>
+                <a href="#">Privacy Notice</a>
+                <a href="#">Interest-Based Ads</a>
+            </div>
+            <div class="footer-copyright">
+                © 2023 Virtual Bookstore, Inc. or its affiliates
+            </div>
+        </div>
+    </footer>
+
+    <script src="main.js"></script>
+    <script>
+        // Search functionality
+        const API_BASE_URL = "http://localhost:9090/api";
+        
+        document.addEventListener('DOMContentLoaded', () => {
+            const searchInput = document.querySelector('.search-input');
+            const searchButton = document.querySelector('.search-button');
+            const booksContainer = document.getElementById('booksContainer');
+            
+            // Check for search query in URL
+            const urlParams = new URLSearchParams(window.location.search);
+            const searchQuery = urlParams.get('search');
+            if (searchQuery) {
+                searchInput.value = searchQuery;
+                performSearch();
+            } else {
+                loadBooks();
+            }
+            
+            function performSearch() {
+                const query = searchInput.value.trim();
+                if (!query) {
+                    loadBooks();
+                    return;
+                }
+                
+                fetch(`${API_BASE_URL}/books/search?q=${encodeURIComponent(query)}`)
+                    .then(res => res.json())
+                    .then(books => {
+                        renderBooks(books, booksContainer, false);
+                    })
+                    .catch(err => {
+                        console.error('Search error:', err);
+                        booksContainer.innerHTML = '<p>Error searching books</p>';
+                    });
+            }
+            
+            searchButton.addEventListener('click', performSearch);
+            searchInput.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') {
+                    performSearch();
+                }
+            });
+        });
+    </script>
+</body>
+</html>

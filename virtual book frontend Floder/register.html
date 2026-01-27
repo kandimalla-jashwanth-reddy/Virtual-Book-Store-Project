@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register - Virtual Bookstore</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .user-type-selector {
+            margin: 20px 0;
+            text-align: center;
+        }
+        
+        .user-type-buttons {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+        
+        .user-type-btn {
+            padding: 10px 20px;
+            border: 2px solid #ddd;
+            background: white;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: 500;
+            width: 150px;
+        }
+        
+        .user-type-btn.active {
+            border-color: #FF9900;
+            background: #FF9900;
+            color: white;
+        }
+        
+        .user-type-btn i {
+            margin-right: 8px;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation Bar -->
+    <nav class="navbar">
+        <div class="nav-logo">
+            <img src="images/logo.png" alt="Virtual Bookstore">
+        </div>
+    </nav>
+
+    <!-- Registration Form -->
+    <div class="auth-container">
+        <h1 class="auth-title">Create Account</h1>
+        
+        <!-- User Type Selector -->
+        <div class="user-type-selector">
+            <h3>Register as:</h3>
+            <div class="user-type-buttons">
+                <button class="user-type-btn active" id="customerBtn">
+                    <i class="fas fa-user"></i> Customer
+                </button>
+                <button class="user-type-btn" id="sellerBtn">
+                    <i class="fas fa-store"></i> Seller
+                </button>
+            </div>
+        </div>
+        
+        <form id="registerForm" class="auth-form">
+            <div class="form-group">
+                <label for="username">Username</label>
+                <input type="text" id="username" name="username" required>
+            </div>
+            <div class="form-group">
+                <label for="email">Email</label>
+                <input type="email" id="email" name="email" required>
+            </div>
+            <div class="form-group">
+                <label for="password">Password</label>
+                <input type="password" id="password" name="password" required>
+            </div>
+            <input type="hidden" id="userRole" value="BUYER">
+            
+            <button type="submit" class="auth-button" id="submitBtn">
+                <i class="fas fa-user-plus"></i> Create Customer Account
+            </button>
+        </form>
+        <div class="auth-link">
+            Already have an account? <a href="login.html">Sign in</a>
+        </div>
+    </div>
+
+    <script>
+        const customerBtn = document.getElementById('customerBtn');
+        const sellerBtn = document.getElementById('sellerBtn');
+        const userRoleInput = document.getElementById('userRole');
+        const submitBtn = document.getElementById('submitBtn');
+        
+        customerBtn.addEventListener('click', () => {
+            customerBtn.classList.add('active');
+            sellerBtn.classList.remove('active');
+            userRoleInput.value = 'BUYER';
+            submitBtn.innerHTML = '<i class="fas fa-user-plus"></i> Create Customer Account';
+        });
+        
+        sellerBtn.addEventListener('click', () => {
+            sellerBtn.classList.add('active');
+            customerBtn.classList.remove('active');
+            userRoleInput.value = 'SELLER';
+            submitBtn.innerHTML = '<i class="fas fa-store"></i> Create Seller Account';
+        });
+        
+        document.getElementById('registerForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const username = document.getElementById('username').value;
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const role = userRoleInput.value;
+            
+            const endpoint = role === 'SELLER' 
+                ? 'http://localhost:9090/api/auth/register/seller'
+                : 'http://localhost:9090/api/auth/register';
+            
+            fetch(endpoint, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ username, email, password })
+            })
+            .then(response => {
+                if (!response.ok) throw new Error('Registration failed');
+                return response.json();
+            })
+            .then(data => {
+                alert('Registration successful! Please login.');
+                window.location.href = 'login.html';
+            })
+            .catch(error => {
+                alert('Registration failed: ' + error.message);
+            });
+        });
+    </script>
+</body>
+</html>

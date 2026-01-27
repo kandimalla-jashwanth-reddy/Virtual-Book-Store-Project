@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - Virtual Bookstore</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .user-type-selector {
+            margin: 20px 0;
+            text-align: center;
+        }
+        
+        .user-type-buttons {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+        
+        .user-type-btn {
+            padding: 10px 20px;
+            border: 2px solid #ddd;
+            background: white;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: 500;
+        }
+        
+        .user-type-btn.active {
+            border-color: #FF9900;
+            background: #FF9900;
+            color: white;
+        }
+        
+        .user-type-btn i {
+            margin-right: 8px;
+        }
+        
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation Bar -->
+    <nav class="navbar">
+        <div class="nav-logo">
+            <img src="images/logo.png" alt="Virtual Bookstore">
+        </div>
+        <div class="nav-items">
+            <div class="nav-item">
+                <a href="index.html" class="nav-link">
+                    <span class="nav-line1">Back to</span>
+                    <span class="nav-line2">Home</span>
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Login Form -->
+    <div class="auth-container">
+        <h1 class="auth-title">Sign In</h1>
+        
+        <!-- User Type Selector -->
+        <div class="user-type-selector">
+            <h3>Login as:</h3>
+            <div class="user-type-buttons">
+                <button class="user-type-btn active" id="customerBtn">
+                    <i class="fas fa-user"></i> Customer
+                </button>
+                <button class="user-type-btn" id="sellerBtn">
+                    <i class="fas fa-store"></i> Seller
+                </button>
+            </div>
+        </div>
+        
+        <!-- Customer Login Form -->
+        <form id="customerLoginForm" class="auth-form">
+            <div class="form-group">
+                <label for="customerUsername">Username</label>
+                <input type="text" id="customerUsername" name="username" required>
+            </div>
+            <div class="form-group">
+                <label for="customerPassword">Password</label>
+                <input type="password" id="customerPassword" name="password" required>
+            </div>
+            <button type="submit" class="auth-button">
+                <i class="fas fa-sign-in-alt"></i> Continue as Customer
+            </button>
+        </form>
+        
+        <!-- Seller Login Form -->
+        <form id="sellerLoginForm" class="auth-form hidden">
+            <div class="form-group">
+                <label for="sellerUsername">Username</label>
+                <input type="text" id="sellerUsername" name="username" required>
+            </div>
+            <div class="form-group">
+                <label for="sellerPassword">Password</label>
+                <input type="password" id="sellerPassword" name="password" required>
+            </div>
+            <button type="submit" class="auth-button">
+                <i class="fas fa-store"></i> Continue as Seller
+            </button>
+        </form>
+        
+        <div class="auth-link">
+            New to Virtual Bookstore? 
+            <a href="register.html">Create your account</a>
+        </div>
+    </div>
+
+    <script>
+        // User type selector
+        const customerBtn = document.getElementById('customerBtn');
+        const sellerBtn = document.getElementById('sellerBtn');
+        const customerForm = document.getElementById('customerLoginForm');
+        const sellerForm = document.getElementById('sellerLoginForm');
+        
+        customerBtn.addEventListener('click', () => {
+            customerBtn.classList.add('active');
+            sellerBtn.classList.remove('active');
+            customerForm.classList.remove('hidden');
+            sellerForm.classList.add('hidden');
+        });
+        
+        sellerBtn.addEventListener('click', () => {
+            sellerBtn.classList.add('active');
+            customerBtn.classList.remove('active');
+            sellerForm.classList.remove('hidden');
+            customerForm.classList.add('hidden');
+        });
+        
+        // Form submission
+        customerForm.addEventListener('submit', handleLogin);
+        sellerForm.addEventListener('submit', handleLogin);
+        
+        function handleLogin(e) {
+            e.preventDefault();
+            
+            const isSeller = sellerBtn.classList.contains('active');
+            const username = isSeller 
+                ? document.getElementById('sellerUsername').value 
+                : document.getElementById('customerUsername').value;
+            const password = isSeller 
+                ? document.getElementById('sellerPassword').value 
+                : document.getElementById('customerPassword').value;
+            
+            // Call login function from main.js
+            loginUser(username, password, isSeller ? 'SELLER' : 'BUYER');
+        }
+        
+        function loginUser(username, password, expectedRole) {
+            fetch('http://localhost:9090/api/auth/login', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ username, password })
+            })
+            .then(response => {
+                if (!response.ok) {
+                    return response.json().then(err => {
+                        throw new Error(err.message || 'Login failed');
+                    }).catch(() => {
+                        throw new Error('Login failed: Invalid credentials');
+                    });
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (!data.token) {
+                    throw new Error('No token received from server');
+                }
+                
+                const user = {
+                    id: data.userId,
+                    username: data.username,
+                    email: data.email,
+                    role: data.role
+                };
+                localStorage.setItem('token', data.token);
+                localStorage.setItem('user', JSON.stringify(user));
+                
+                // Check if user has the expected role
+                if (expectedRole && user.role !== expectedRole) {
+                    alert(`Please login as ${expectedRole === 'SELLER' ? 'Seller' : 'Customer'}`);
+                    localStorage.removeItem('token');
+                    localStorage.removeItem('user');
+                    return;
+                }
+                
+                if (user.role === 'SELLER') {
+                    window.location.href = 'seller-dashboard.html';
+                } else {
+                    window.location.href = 'Book.html';
+                }
+            })
+            .catch(error => {
+                alert('Login failed: ' + error.message);
+                console.error('Login error:', error);
+            });
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Profile - Virtual Bookstore</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-logo">
+            <img src="images/logo.png" alt="Virtual Bookstore">
+        </div>
+        <div class="nav-items">
+            <div class="nav-item" id="user-greeting">
+                <a href="login.html" class="nav-link">
+                    <span class="nav-line1">Hello, Sign in</span>
+                    <span class="nav-line2">Account & Lists</span>
+                </a>
+            </div>
+            <div class="nav-item">
+                <a href="orders.html" class="nav-link">
+                    <span class="nav-line1">Returns</span>
+                    <span class="nav-line2">& Orders</span>
+                </a>
+            </div>
+            <div class="nav-item">
+                <a href="cart.html" class="nav-link">
+                    <i class="fas fa-shopping-cart cart-icon"></i>
+                    <span class="cart-count">0</span>
+                    <span class="nav-line2">Cart</span>
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container" style="padding-top: 20px;">
+        <h2 class="section-title">Your Profile</h2>
+        <div style="background: white; padding: 20px; border-radius: 8px;">
+            <p id="profileInfo">Loading...</p>
+        </div>
+    </div>
+
+    <script src="main.js"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            const user = JSON.parse(localStorage.getItem("user") || "null");
+            if (!user) {
+                document.getElementById("profileInfo").textContent = "Please sign in.";
+                return;
+            }
+            document.getElementById("profileInfo").innerHTML =
+                `<strong>Username:</strong> ${user.username}<br>` +
+                `<strong>Email:</strong> ${user.email}<br>` +
+                `<strong>Role:</strong> ${user.role}`;
+        });
+    </script>
+</body>
+</html>
