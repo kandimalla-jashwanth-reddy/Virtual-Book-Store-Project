@@ -36,9 +36,66 @@
     </nav>
 
     <div class="container" style="padding-top: 20px;">
-        <h2 class="section-title">Your Address</h2>
-        <div style="background: white; padding: 20px; border-radius: 8px;">
-            <p>This is a placeholder page. You can store shipping addresses here later.</p>
+        <div class="address-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+            <h2 class="section-title">Your Addresses</h2>
+            <button id="addAddressBtn" class="auth-button" style="width: auto;">Add New Address</button>
+        </div>
+
+        <!-- Address List -->
+        <div id="address-list" class="address-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px;">
+            <!-- Addresses will be injected here -->
+        </div>
+
+        <!-- Address Form (Hidden by default) -->
+        <div id="address-form-modal" class="modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; justify-content: center; align-items: center;">
+            <div class="modal-content" style="background: white; padding: 30px; border-radius: 8px; width: 90%; max-width: 500px; max-height: 90vh; overflow-y: auto;">
+                <h3 id="formTitle" style="margin-bottom: 20px;">Add New Address</h3>
+                <form id="addressForm">
+                    <input type="hidden" id="addressId">
+                    
+                    <div class="form-group">
+                        <label for="fullName">Full Name</label>
+                        <input type="text" id="fullName" required class="form-control" style="width: 100%; padding: 10px; margin-bottom: 15px; border: 1px solid #ddd; border-radius: 4px;">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="phoneNumber">Phone Number</label>
+                        <input type="tel" id="phoneNumber" required class="form-control" style="width: 100%; padding: 10px; margin-bottom: 15px; border: 1px solid #ddd; border-radius: 4px;">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="streetAddress">Street Address</label>
+                        <input type="text" id="streetAddress" required class="form-control" style="width: 100%; padding: 10px; margin-bottom: 15px; border: 1px solid #ddd; border-radius: 4px;">
+                    </div>
+
+                    <div class="form-row" style="display: flex; gap: 15px;">
+                        <div class="form-group" style="flex: 1;">
+                            <label for="city">City</label>
+                            <input type="text" id="city" required class="form-control" style="width: 100%; padding: 10px; margin-bottom: 15px; border: 1px solid #ddd; border-radius: 4px;">
+                        </div>
+                        <div class="form-group" style="flex: 1;">
+                            <label for="state">State</label>
+                            <input type="text" id="state" required class="form-control" style="width: 100%; padding: 10px; margin-bottom: 15px; border: 1px solid #ddd; border-radius: 4px;">
+                        </div>
+                    </div>
+
+                    <div class="form-row" style="display: flex; gap: 15px;">
+                        <div class="form-group" style="flex: 1;">
+                            <label for="zipCode">Zip Code</label>
+                            <input type="text" id="zipCode" required class="form-control" style="width: 100%; padding: 10px; margin-bottom: 15px; border: 1px solid #ddd; border-radius: 4px;">
+                        </div>
+                        <div class="form-group" style="flex: 1;">
+                            <label for="country">Country</label>
+                            <input type="text" id="country" required class="form-control" style="width: 100%; padding: 10px; margin-bottom: 15px; border: 1px solid #ddd; border-radius: 4px;">
+                        </div>
+                    </div>
+
+                    <div class="form-actions" style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px;">
+                        <button type="button" id="cancelAddressBtn" class="auth-button" style="background: #ccc; color: #333;">Cancel</button>
+                        <button type="submit" class="auth-button">Save Address</button>
+                    </div>
+                </form>
+            </div>
         </div>
     </div>
 

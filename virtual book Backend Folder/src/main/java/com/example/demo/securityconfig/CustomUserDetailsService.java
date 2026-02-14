@@ -16,7 +16,6 @@ public class CustomUserDetailsService implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String login) throws UsernameNotFoundException {
-        // Support login with either email OR username.
         User user = userRepository.findByEmail(login)
                 .orElseGet(() -> userRepository.findByUsername(login).orElse(null));
 
@@ -27,7 +26,7 @@ public class CustomUserDetailsService implements UserDetailsService {
         return org.springframework.security.core.userdetails.User.builder()
                 .username(user.getEmail())
                 .password(user.getPassword())
-                .roles(user.getRole()) // -> ROLE_BUYER / ROLE_SELLER / ROLE_ADMIN
+                .roles(user.getRole())
                 .build();
     }
 }

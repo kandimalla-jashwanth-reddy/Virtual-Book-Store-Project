@@ -19,10 +19,12 @@ import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import java.util.Arrays;
+import java.util.Collections;
 
 @Configuration
 @EnableWebSecurity
 @EnableMethodSecurity
+@SuppressWarnings("unused")
 public class SecurityConfig {
 
     @Autowired
@@ -35,12 +37,16 @@ public class SecurityConfig {
                 .csrf().disable()
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS).and()
                 .authorizeRequests()
+                .antMatchers("/api/auth/forgot-password", "/api/auth/reset-password").permitAll()
                 .antMatchers("/api/auth/**").permitAll()
                 .antMatchers("/api/books/**").permitAll()
                 .antMatchers("/api/reviews/**").permitAll()
                 .antMatchers("/api/users/**").permitAll()
                 .antMatchers("/api/seller/**").hasRole("SELLER")
                 .antMatchers("/api/orders/**").hasAnyRole("BUYER", "SELLER", "ADMIN")
+                .antMatchers("/api/addresses/**").hasAnyRole("BUYER", "SELLER", "ADMIN")
+                .antMatchers("/api/coupons/**").hasAnyRole("BUYER", "SELLER", "ADMIN")
+                .antMatchers("/api/payment/**").hasAnyRole("BUYER", "SELLER", "ADMIN")
                 .antMatchers("/api/admin/**").hasRole("ADMIN")
                 .anyRequest().authenticated();
 
@@ -49,9 +55,15 @@ public class SecurityConfig {
         return http.build();
     }
 
+    @Autowired
+    private com.example.demo.securityconfig.CustomUserDetailsService customUserDetailsService;
+
     @Bean
-    public PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();
+    public org.springframework.security.authentication.dao.DaoAuthenticationProvider authenticationProvider() {
+        org.springframework.security.authentication.dao.DaoAuthenticationProvider authProvider = new org.springframework.security.authentication.dao.DaoAuthenticationProvider();
+        authProvider.setUserDetailsService(customUserDetailsService);
+        authProvider.setPasswordEncoder(passwordEncoder());
+        return authProvider;
     }
 
     @Bean
@@ -60,14 +72,19 @@ public class SecurityConfig {
     }
 
     @Bean
+    public PasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder();
+    }
+
+    @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        // Dev-friendly CORS: allow any origin to call the API (no cookies used).
-        configuration.setAllowedOriginPatterns(Arrays.asList("*"));
-        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
-        configuration.setAllowedHeaders(Arrays.asList("*"));
-        configuration.setExposedHeaders(Arrays.asList("Authorization"));
-        configuration.setAllowCredentials(false);
+
+        configuration.setAllowedOriginPatterns(Collections.singletonList("*"));
+        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH", "HEAD"));
+        configuration.setAllowedHeaders(Collections.singletonList("*"));
+        configuration.setExposedHeaders(Collections.singletonList("Authorization"));
+        configuration.setAllowCredentials(true);
         configuration.setMaxAge(3600L);
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();

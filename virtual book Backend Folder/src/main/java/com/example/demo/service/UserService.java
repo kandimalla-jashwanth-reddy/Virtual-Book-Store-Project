@@ -6,6 +6,10 @@ import java.util.Optional;
 
 public interface UserService {
     User getUserById(Long id);
+
     User getUserByEmail(String email);
+
     Optional<User> findByUsername(String username);
+
+    void updateBankDetails(Long userId, String account, String ifsc, String bankName);
 }

@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Payment - Virtual Bookstore</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        .payment-container {
+            max-width: 600px;
+            margin: 50px auto;
+            text-align: center;
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .qr-code {
+            width: 200px;
+            height: 200px;
+            background: #f0f0f0;
+            margin: 20px auto;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 2px dashed #ccc;
+        }
+
+        .payment-info {
+            margin-bottom: 20px;
+            color: #555;
+        }
+
+        .confirm-btn {
+            background: #28a745;
+            color: white;
+            padding: 12px 30px;
+            border: none;
+            border-radius: 4px;
+            font-size: 16px;
+            cursor: pointer;
+            width: 100%;
+        }
+
+        .confirm-btn:hover {
+            background: #218838;
+        }
+
+        .payment-btn {
+            display: block;
+            width: 100%;
+            padding: 12px;
+            margin: 10px 0;
+            text-decoration: none;
+            color: white;
+            border-radius: 5px;
+            font-weight: bold;
+            text-align: center;
+        }
+
+        .phonepe-btn {
+            background-color: #5f259f;
+        }
+
+        .paytm-btn {
+            background-color: #00b9f1;
+        }
+
+        .gpay-btn {
+            background-color: #ea4335;
+        }
+
+        .generic-btn {
+            background-color: #333;
+        }
+
+        .small-text {
+            font-size: 0.9em;
+            color: #666;
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="payment-container">
+        <h2>Complete Your Payment</h2>
+        <p class="payment-info">Choose your preferred payment method</p>
+
+        <div class="upi-options" id="upiOptions" style="display:none;">
+            <p style="margin-bottom: 20px;">Paying: <strong id="displayAmount">$0.00</strong></p>
+
+            <a id="payPhonePe" href="#" class="payment-btn phonepe-btn">Pay via PhonePe</a>
+            <a id="payPaytm" href="#" class="payment-btn paytm-btn">Pay via Paytm</a>
+            <a id="payGPay" href="#" class="payment-btn gpay-btn">Pay via GPay</a>
+            <a id="payGeneric" href="#" class="payment-btn generic-btn">Other UPI App</a>
+
+            <div style="margin-top: 30px; border-top: 1px solid #eee; padding-top: 20px;">
+                <p class="small-text">After completing payment in your UPI app, click below:</p>
+                <button class="confirm-btn" onclick="confirmPayment()">I Have Paid</button>
+            </div>
+
+            <p id="desktopMessage" style="display:none; color: red; font-size: 12px; margin-top: 10px;">
+                * UPI links typically work best on mobile devices with UPI apps installed.
+            </p>
+        </div>
+
+        <div id="initialView">
+            <p class="payment-info">Total Amount: <strong id="paymentAmount">$0.00</strong></p>
+            <button class="confirm-btn" onclick="showUpiOptions()">Pay with UPI</button>
+        </div>
+    </div>
+
+    <script src="main.js"></script>
+    <script>
+        let currentAmount = 0;
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const pendingOrder = JSON.parse(localStorage.getItem('pendingOrder') || '{}');
+            if (pendingOrder.total) {
+                currentAmount = pendingOrder.total;
+                document.getElementById('paymentAmount').textContent = '₹' + currentAmount.toFixed(2);
+                document.getElementById('displayAmount').textContent = '₹' + currentAmount.toFixed(2);
+            }
+        });
+
+        function showUpiOptions() {
+            document.getElementById('initialView').style.display = 'none';
+            document.getElementById('upiOptions').style.display = 'block';
+
+            // Receiver UPI ID - REPLACE THIS WITH REAL ID
+            const upiId = "receiver@upi";
+            const name = "BookStore";
+            const note = "Order Payment";
+
+            // Construct Base UPI Link
+            // Format: upi://pay?pa=...&pn=...&am=...&cu=INR
+            const upiLink = `upi://pay?pa=${upiId}&pn=${name}&am=${currentAmount.toFixed(2)}&cu=INR&tn=${note}`;
+
+            // Specific App Links (Deep Links)
+            // Note: These schemes might vary or require intent URLs on specific OS, but these are common standards.
+            // PhonePe: phonepe://pay? ...
+            // Paytm: paytmmp://pay? ...
+            // GPay: upi://pay? ... (GPay usually intercepts standard upi://)
+
+            // For simplicity, we use the standard upi:// link for all, but try to hint different apps if possible, 
+            // or just let the OS picker handle it.
+            // Actually, specific schemes are often:
+            // PhonePe: phonepe://pay?...
+            // Paytm: paytmmp://pay?...
+
+            document.getElementById('payGeneric').href = upiLink;
+            document.getElementById('payGPay').href = upiLink; // GPay usually registers for upi://
+            document.getElementById('payPhonePe').href = upiLink.replace("upi://", "phonepe://");
+            document.getElementById('payPaytm').href = upiLink.replace("upi://", "paytmmp://");
+
+            // Check if desktop
+            if (!/Mobi|Android/i.test(navigator.userAgent)) {
+                document.getElementById('desktopMessage').style.display = 'block';
+            }
+        }
+
+        async function confirmPayment() {
+            const confirmBtn = document.querySelector('.confirm-btn');
+            confirmBtn.disabled = true;
+            confirmBtn.textContent = "Processing...";
+
+            const token = typeof getStoredToken === 'function' ? getStoredToken() : localStorage.getItem('token');
+            const apiBase = typeof API_BASE_URL !== 'undefined' ? API_BASE_URL : 'http://localhost:9090/api';
+
+            try {
+                // 1. Notify Backend of manual payment attempt (Optional, but good for tracking)
+                const headers = { 'Content-Type': 'application/json' };
+                if (token) headers['Authorization'] = 'Bearer ' + token;
+                await fetch(`${apiBase}/payment/manual-upi`, {
+                    method: 'POST',
+                    headers: headers,
+                    body: JSON.stringify({ amount: currentAmount, method: 'UPI_MANUAL' })
+                });
+
+                // 2. Place Order Logic
+                const pendingOrder = JSON.parse(localStorage.getItem('pendingOrder') || '{}');
+                const cart = JSON.parse(localStorage.getItem('cart') || '[]');
+                const user = JSON.parse(localStorage.getItem('user') || 'null');
+
+                if (!user) {
+                    alert("Please login first");
+                    confirmBtn.disabled = false;
+                    confirmBtn.textContent = "I Have Paid";
+                    return;
+                }
+
+                if (cart.length === 0) {
+                    alert("Cart is empty");
+                    confirmBtn.disabled = false;
+                    confirmBtn.textContent = "I Have Paid";
+                    return;
+                }
+
+                const orderRequest = {
+                    userId: user.id,
+                    bookIds: cart.map(i => i.bookId)
+                };
+
+                const response = await fetch(`${apiBase}/orders/place-by-ids`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': 'Bearer ' + token
+                    },
+                    body: JSON.stringify(orderRequest)
+                });
+
+                if (response.ok) {
+                    const order = await response.json();
+                    alert("Order placed successfully! Please wait for seller confirmation.");
+                    localStorage.removeItem('pendingOrder');
+                    localStorage.removeItem('cart'); // Clear cart if needed
+                    window.location.href = 'index.html'; // Redirect to home or orders page
+                } else {
+                    const err = await response.text();
+                    alert("Failed to place order: " + err);
+                    confirmBtn.disabled = false;
+                    confirmBtn.textContent = "I Have Paid";
+                }
+
+            } catch (error) {
+                console.error(error);
+                alert("An error occurred.");
+                confirmBtn.disabled = false;
+                confirmBtn.textContent = "I Have Paid";
+            }
+        }
+    </script>
+</body>
+
+</html>

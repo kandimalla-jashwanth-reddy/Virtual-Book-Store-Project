@@ -37,20 +37,19 @@ public class ReviewController {
             throw new RuntimeException("Invalid or missing token");
         }
         String jwtToken = token.replace("Bearer ", "");
-        String username = jwtUtil.extractUsername(jwtToken); // Using extractUsername
+        String username = jwtUtil.extractUsername(jwtToken);
         return userService.getUserByEmail(username);
     }
 
     @PostMapping("/{bookId}/add")
     public ResponseEntity<?> addReview(@PathVariable Long bookId,
-                                       @Valid @RequestBody Review review,
-                                       @RequestHeader("Authorization") String token) {
+            @Valid @RequestBody Review review,
+            @RequestHeader("Authorization") String token) {
         try {
             User user = getUserFromToken(token);
             Book book = bookService.getBookById(bookId)
                     .orElseThrow(() -> new RuntimeException("Book not found"));
 
-            // Validate rating
             if (review.getRating() < 1 || review.getRating() > 5) {
                 Map<String, String> error = new HashMap<>();
                 error.put("error", "Rating must be between 1 and 5");

@@ -16,6 +16,7 @@ import java.util.HashMap;
 
 @RestController
 @RequestMapping("/api/seller")
+@CrossOrigin(origins = "*")
 public class BookManagementController {
 
     @Autowired
@@ -38,7 +39,7 @@ public class BookManagementController {
 
     @PostMapping("/books")
     public ResponseEntity<?> addBook(@RequestBody BookRequest bookRequest,
-                                     @RequestHeader("Authorization") String token) {
+            @RequestHeader("Authorization") String token) {
         try {
             User seller = getSellerFromToken(token);
 
@@ -90,8 +91,8 @@ public class BookManagementController {
 
     @PutMapping("/books/{id}")
     public ResponseEntity<?> updateBook(@PathVariable Long id,
-                                        @RequestBody BookRequest bookRequest,
-                                        @RequestHeader("Authorization") String token) {
+            @RequestBody BookRequest bookRequest,
+            @RequestHeader("Authorization") String token) {
         try {
             User seller = getSellerFromToken(token);
 
@@ -130,7 +131,7 @@ public class BookManagementController {
 
     @DeleteMapping("/books/{id}")
     public ResponseEntity<?> deleteBook(@PathVariable Long id,
-                                        @RequestHeader("Authorization") String token) {
+            @RequestHeader("Authorization") String token) {
         try {
             User seller = getSellerFromToken(token);
 
@@ -163,8 +164,8 @@ public class BookManagementController {
 
     @PutMapping("/books/{id}/quantity")
     public ResponseEntity<?> updateQuantity(@PathVariable Long id,
-                                            @RequestParam Integer quantity,
-                                            @RequestHeader("Authorization") String token) {
+            @RequestParam Integer quantity,
+            @RequestHeader("Authorization") String token) {
         try {
             User seller = getSellerFromToken(token);
 

@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -11,14 +12,14 @@
             margin: 20px 0;
             text-align: center;
         }
-        
+
         .user-type-buttons {
             display: flex;
             gap: 10px;
             justify-content: center;
             margin-bottom: 20px;
         }
-        
+
         .user-type-btn {
             padding: 10px 20px;
             border: 2px solid #ddd;
@@ -28,22 +29,23 @@
             transition: all 0.3s;
             font-weight: 500;
         }
-        
+
         .user-type-btn.active {
             border-color: #FF9900;
             background: #FF9900;
             color: white;
         }
-        
+
         .user-type-btn i {
             margin-right: 8px;
         }
-        
+
         .hidden {
             display: none;
         }
     </style>
 </head>
+
 <body>
     <!-- Navigation Bar -->
     <nav class="navbar">
@@ -63,7 +65,7 @@
     <!-- Login Form -->
     <div class="auth-container">
         <h1 class="auth-title">Sign In</h1>
-        
+
         <!-- User Type Selector -->
         <div class="user-type-selector">
             <h3>Login as:</h3>
@@ -76,134 +78,146 @@
                 </button>
             </div>
         </div>
-        
+
         <!-- Customer Login Form -->
-        <form id="customerLoginForm" class="auth-form">
+        <form id="customerLoginForm" class="auth-form" method="post" action="">
             <div class="form-group">
                 <label for="customerUsername">Username</label>
                 <input type="text" id="customerUsername" name="username" required>
             </div>
             <div class="form-group">
                 <label for="customerPassword">Password</label>
-                <input type="password" id="customerPassword" name="password" required>
+                <div style="position: relative;">
+                    <input type="password" id="customerPassword" name="password" required
+                        style="width: 100%; padding: 10px; margin-bottom: 0px; border: 1px solid #ddd; border-radius: 4px;">
+                    <i class="fas fa-eye" id="toggleCustomerPassword"
+                        style="position: absolute; right: 10px; top: 12px; cursor: pointer; color: #888;"></i>
+                </div>
             </div>
             <button type="submit" class="auth-button">
                 <i class="fas fa-sign-in-alt"></i> Continue as Customer
             </button>
         </form>
-        
+
         <!-- Seller Login Form -->
-        <form id="sellerLoginForm" class="auth-form hidden">
+        <form id="sellerLoginForm" class="auth-form hidden" method="post" action="">
             <div class="form-group">
                 <label for="sellerUsername">Username</label>
                 <input type="text" id="sellerUsername" name="username" required>
             </div>
             <div class="form-group">
                 <label for="sellerPassword">Password</label>
-                <input type="password" id="sellerPassword" name="password" required>
+                <div style="position: relative;">
+                    <input type="password" id="sellerPassword" name="password" required
+                        style="width: 100%; padding: 10px; margin-bottom: 0px; border: 1px solid #ddd; border-radius: 4px;">
+                    <i class="fas fa-eye" id="toggleSellerPassword"
+                        style="position: absolute; right: 10px; top: 12px; cursor: pointer; color: #888;"></i>
+                </div>
             </div>
             <button type="submit" class="auth-button">
                 <i class="fas fa-store"></i> Continue as Seller
             </button>
         </form>
-        
+
+        <div class="auth-link" style="margin-bottom: 10px;">
+            <a href="#" id="forgotPasswordLink">Forgot Password?</a>
+        </div>
         <div class="auth-link">
-            New to Virtual Bookstore? 
+            New to Virtual Bookstore?
             <a href="register.html">Create your account</a>
         </div>
     </div>
 
+    <!-- Forgot Password Modal -->
+    <div id="forgotPasswordModal" class="modal"
+        style="display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: rgba(0,0,0,0.4); align-items: center; justify-content: center;">
+        <div class="modal-content"
+            style="background-color: #fefefe; margin: auto; padding: 20px; border: 1px solid #888; width: 90%; max-width: 400px; border-radius: 8px;">
+            <span class="close" id="closeForgotModal"
+                style="color: #aaa; float: right; font-size: 28px; font-weight: bold; cursor: pointer;">&times;</span>
+            <h2>Reset Password</h2>
+
+            <!-- Step 1: Email -->
+            <div id="forgotStep1">
+                <p>Enter your email address to receive an OTP.</p>
+                <input type="email" id="forgotEmail" placeholder="Enter your email"
+                    style="width: 100%; padding: 10px; margin: 10px 0; border: 1px solid #ddd; border-radius: 4px;">
+                <button id="sendOtpBtn" class="auth-button">Send OTP</button>
+            </div>
+
+            <!-- Step 2: OTP and New Password -->
+            <div id="forgotStep2" style="display: none;">
+                <p>Enter the OTP sent to your email and your new password.</p>
+                <input type="text" id="forgotOtp" placeholder="Enter OTP"
+                    style="width: 100%; padding: 10px; margin: 10px 0; border: 1px solid #ddd; border-radius: 4px;">
+                <div style="position: relative;">
+                    <input type="password" id="newPassword" placeholder="New Password"
+                        style="width: 100%; padding: 10px; margin: 10px 0; border: 1px solid #ddd; border-radius: 4px;">
+                    <i class="fas fa-eye" id="togglePassword"
+                        style="position: absolute; right: 10px; top: 20px; cursor: pointer; color: #888;"></i>
+                </div>
+                <button id="resetPasswordBtn" class="auth-button">Reset Password</button>
+            </div>
+
+            <div id="forgotMessage" style="margin-top: 10px; color: red; text-align: center;"></div>
+        </div>
+    </div>
+
+    <script src="main.js"></script>
     <script>
-        // User type selector
+        if (window.location.search || window.location.hash) {
+            window.history.replaceState({}, document.title, window.location.pathname);
+        }
         const customerBtn = document.getElementById('customerBtn');
         const sellerBtn = document.getElementById('sellerBtn');
         const customerForm = document.getElementById('customerLoginForm');
         const sellerForm = document.getElementById('sellerLoginForm');
-        
-        customerBtn.addEventListener('click', () => {
-            customerBtn.classList.add('active');
-            sellerBtn.classList.remove('active');
-            customerForm.classList.remove('hidden');
-            sellerForm.classList.add('hidden');
-        });
-        
-        sellerBtn.addEventListener('click', () => {
-            sellerBtn.classList.add('active');
-            customerBtn.classList.remove('active');
-            sellerForm.classList.remove('hidden');
-            customerForm.classList.add('hidden');
-        });
-        
-        // Form submission
-        customerForm.addEventListener('submit', handleLogin);
-        sellerForm.addEventListener('submit', handleLogin);
-        
-        function handleLogin(e) {
-            e.preventDefault();
-            
-            const isSeller = sellerBtn.classList.contains('active');
-            const username = isSeller 
-                ? document.getElementById('sellerUsername').value 
-                : document.getElementById('customerUsername').value;
-            const password = isSeller 
-                ? document.getElementById('sellerPassword').value 
-                : document.getElementById('customerPassword').value;
-            
-            // Call login function from main.js
-            loginUser(username, password, isSeller ? 'SELLER' : 'BUYER');
-        }
-        
-        function loginUser(username, password, expectedRole) {
-            fetch('http://localhost:9090/api/auth/login', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({ username, password })
-            })
-            .then(response => {
-                if (!response.ok) {
-                    return response.json().then(err => {
-                        throw new Error(err.message || 'Login failed');
-                    }).catch(() => {
-                        throw new Error('Login failed: Invalid credentials');
-                    });
-                }
-                return response.json();
-            })
-            .then(data => {
-                if (!data.token) {
-                    throw new Error('No token received from server');
-                }
-                
-                const user = {
-                    id: data.userId,
-                    username: data.username,
-                    email: data.email,
-                    role: data.role
-                };
-                localStorage.setItem('token', data.token);
-                localStorage.setItem('user', JSON.stringify(user));
-                
-                // Check if user has the expected role
-                if (expectedRole && user.role !== expectedRole) {
-                    alert(`Please login as ${expectedRole === 'SELLER' ? 'Seller' : 'Customer'}`);
-                    localStorage.removeItem('token');
-                    localStorage.removeItem('user');
-                    return;
-                }
-                
-                if (user.role === 'SELLER') {
-                    window.location.href = 'seller-dashboard.html';
-                } else {
-                    window.location.href = 'Book.html';
-                }
-            })
-            .catch(error => {
-                alert('Login failed: ' + error.message);
-                console.error('Login error:', error);
+
+        if (customerBtn && sellerBtn) {
+            customerBtn.addEventListener('click', () => {
+                customerBtn.classList.add('active');
+                sellerBtn.classList.remove('active');
+                customerForm.classList.remove('hidden');
+                sellerForm.classList.add('hidden');
+            });
+
+            sellerBtn.addEventListener('click', () => {
+                sellerBtn.classList.add('active');
+                customerBtn.classList.remove('active');
+                sellerForm.classList.remove('hidden');
+                customerForm.classList.add('hidden');
             });
         }
+
+        // Form submit is handled by main.js (handleLogin) - connects to backend API
+
+        if (typeof setupForgotPassword === 'function') {
+            setupForgotPassword();
+        }
+
+        function setupPasswordToggle(inputId, toggleId) {
+            const input = document.getElementById(inputId);
+            const toggle = document.getElementById(toggleId);
+
+            if (input && toggle) {
+                toggle.addEventListener("click", () => {
+                    const type = input.getAttribute("type") === "password" ? "text" : "password";
+                    input.setAttribute("type", type);
+
+                    if (type === "text") {
+                        toggle.classList.remove("fa-eye");
+                        toggle.classList.add("fa-eye-slash");
+                    } else {
+                        toggle.classList.remove("fa-eye-slash");
+                        toggle.classList.add("fa-eye");
+                    }
+                });
+            }
+        }
+
+        setupPasswordToggle("customerPassword", "toggleCustomerPassword");
+        setupPasswordToggle("sellerPassword", "toggleSellerPassword");
     </script>
 </body>
+
 </html>

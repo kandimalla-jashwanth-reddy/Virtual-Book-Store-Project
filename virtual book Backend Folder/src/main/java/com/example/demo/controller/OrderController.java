@@ -38,11 +38,13 @@ public class OrderController {
 
     @PostMapping("/place")
     public ResponseEntity<?> placeOrder(@RequestBody Order order,
-                                        @RequestHeader("Authorization") String token) {
+            @RequestHeader("Authorization") String token) {
         try {
             User user = getUserFromToken(token);
             order.setUser(user);
-            Order savedOrder = orderService.placeOrder(user, order.getItems());
+
+            Order savedOrder = orderService.placeOrder(order);
+
             return ResponseEntity.ok(savedOrder);
         } catch (Exception e) {
             Map<String, String> error = new HashMap<>();
@@ -53,18 +55,14 @@ public class OrderController {
 
     @PostMapping("/place-by-ids")
     public ResponseEntity<?> placeOrderByIds(@RequestBody OrderRequestDTO orderRequest,
-                                             @RequestHeader("Authorization") String token) {
+            @RequestHeader("Authorization") String token) {
         try {
             User user = getUserFromToken(token);
+            orderRequest.setUserId(user.getId()); // Ensure the user from token is used
 
-            if (!user.getId().equals(orderRequest.getUserId())) {
-                Map<String, String> error = new HashMap<>();
-                error.put("error", "Unauthorized");
-                return ResponseEntity.status(403).body(error);
-            }
+            Order savedOrder = orderService.placeOrderByIds(orderRequest);
 
-            Order order = orderService.placeOrderByIds(orderRequest);
-            return ResponseEntity.ok(order);
+            return ResponseEntity.ok(savedOrder);
         } catch (Exception e) {
             Map<String, String> error = new HashMap<>();
             error.put("error", e.getMessage());
@@ -73,55 +71,36 @@ public class OrderController {
     }
 
     @GetMapping("/user/{userId}")
-    public ResponseEntity<?> getOrdersByUser(@PathVariable Long userId,
-                                             @RequestHeader("Authorization") String token) {
-        try {
-            User user = getUserFromToken(token);
-
-            if (!user.getId().equals(userId) && !"ADMIN".equals(user.getRole())) {
-                Map<String, String> error = new HashMap<>();
-                error.put("error", "Unauthorized");
-                return ResponseEntity.status(403).body(error);
-            }
-
-            List<Order> orders = orderService.getOrdersByUser(user);
-            return ResponseEntity.ok(orders);
-        } catch (Exception e) {
-            Map<String, String> error = new HashMap<>();
-            error.put("error", e.getMessage());
-            return ResponseEntity.badRequest().body(error);
-        }
+    public List<Order> getOrdersByUser(@PathVariable Long userId) {
+        User user = new User();
+        user.setId(userId);
+        return orderService.getOrdersByUser(user);
     }
 
     @GetMapping("/{orderId}")
-    public ResponseEntity<?> getOrderById(@PathVariable Long orderId,
-                                          @RequestHeader("Authorization") String token) {
-        try {
-            User user = getUserFromToken(token);
-            Order order = orderService.getOrderById(orderId)
-                    .orElseThrow(() -> new RuntimeException("Order not found"));
-
-            // Check authorization
-            if (!order.getUser().getId().equals(user.getId()) && !"ADMIN".equals(user.getRole())) {
-                Map<String, String> error = new HashMap<>();
-                error.put("error", "Unauthorized");
-                return ResponseEntity.status(403).body(error);
-            }
-
-            return ResponseEntity.ok(order);
-        } catch (Exception e) {
-            Map<String, String> error = new HashMap<>();
-            error.put("error", e.getMessage());
-            return ResponseEntity.badRequest().body(error);
-        }
+    public ResponseEntity<?> getOrderById(@PathVariable Long orderId) {
+        return orderService.getOrderById(orderId)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
     }
 
     @PutMapping("/{orderId}/cancel")
     public ResponseEntity<?> cancelOrder(@PathVariable Long orderId,
-                                         @RequestHeader("Authorization") String token) {
+            @RequestBody(required = false) Map<String, String> body,
+            @RequestHeader("Authorization") String token) {
         try {
             User user = getUserFromToken(token);
-            Order cancelledOrder = orderService.cancelOrder(orderId, user);
+            // Verify ownership first then cancel
+            Order order = orderService.getOrderById(orderId)
+                    .orElseThrow(() -> new RuntimeException("Order not found"));
+
+            if (!order.getUser().getId().equals(user.getId()) && !"ADMIN".equals(user.getRole())) {
+                throw new RuntimeException("Unauthorized");
+            }
+
+            String reason = (body != null && body.containsKey("reason")) ? body.get("reason") : "Cancelled by user";
+            Order cancelledOrder = orderService.cancelOrder(orderId, reason);
+
             return ResponseEntity.ok(cancelledOrder);
         } catch (Exception e) {
             Map<String, String> error = new HashMap<>();

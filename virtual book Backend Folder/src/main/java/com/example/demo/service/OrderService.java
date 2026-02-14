@@ -10,8 +10,16 @@ import java.util.Optional;
 
 public interface OrderService {
     Order placeOrder(User user, List<OrderItem> items);
+
+    Order placeOrder(Order order); // New overloaded method
+
     Order placeOrderByIds(OrderRequestDTO orderRequest);
+
     List<Order> getOrdersByUser(User user);
+
     Optional<Order> getOrderById(Long orderId);
+
     Order cancelOrder(Long orderId, User user);
+
+    Order cancelOrder(Long orderId, String reason); // New overloaded method
 }

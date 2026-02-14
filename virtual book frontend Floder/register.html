@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -11,14 +12,14 @@
             margin: 20px 0;
             text-align: center;
         }
-        
+
         .user-type-buttons {
             display: flex;
             gap: 10px;
             justify-content: center;
             margin-bottom: 20px;
         }
-        
+
         .user-type-btn {
             padding: 10px 20px;
             border: 2px solid #ddd;
@@ -29,18 +30,19 @@
             font-weight: 500;
             width: 150px;
         }
-        
+
         .user-type-btn.active {
             border-color: #FF9900;
             background: #FF9900;
             color: white;
         }
-        
+
         .user-type-btn i {
             margin-right: 8px;
         }
     </style>
 </head>
+
 <body>
     <!-- Navigation Bar -->
     <nav class="navbar">
@@ -52,7 +54,7 @@
     <!-- Registration Form -->
     <div class="auth-container">
         <h1 class="auth-title">Create Account</h1>
-        
+
         <!-- User Type Selector -->
         <div class="user-type-selector">
             <h3>Register as:</h3>
@@ -65,7 +67,7 @@
                 </button>
             </div>
         </div>
-        
+
         <form id="registerForm" class="auth-form">
             <div class="form-group">
                 <label for="username">Username</label>
@@ -77,10 +79,15 @@
             </div>
             <div class="form-group">
                 <label for="password">Password</label>
-                <input type="password" id="password" name="password" required>
+                <div style="position: relative;">
+                    <input type="password" id="password" name="password" required
+                        style="width: 100%; padding: 10px; margin-bottom: 0px; border: 1px solid #ddd; border-radius: 4px;">
+                    <i class="fas fa-eye" id="togglePassword"
+                        style="position: absolute; right: 10px; top: 12px; cursor: pointer; color: #888;"></i>
+                </div>
             </div>
             <input type="hidden" id="userRole" value="BUYER">
-            
+
             <button type="submit" class="auth-button" id="submitBtn">
                 <i class="fas fa-user-plus"></i> Create Customer Account
             </button>
@@ -90,57 +97,47 @@
         </div>
     </div>
 
+    <script src="main.js"></script>
     <script>
         const customerBtn = document.getElementById('customerBtn');
         const sellerBtn = document.getElementById('sellerBtn');
         const userRoleInput = document.getElementById('userRole');
         const submitBtn = document.getElementById('submitBtn');
-        
+
+        // Toggle Password Visibility Logic
+        const togglePassword = document.getElementById('togglePassword');
+        const passwordInput = document.getElementById('password');
+
+        if (togglePassword && passwordInput) {
+            togglePassword.addEventListener('click', () => {
+                const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+                passwordInput.setAttribute('type', type);
+
+                if (type === 'text') {
+                    togglePassword.classList.remove('fa-eye');
+                    togglePassword.classList.add('fa-eye-slash');
+                } else {
+                    togglePassword.classList.remove('fa-eye-slash');
+                    togglePassword.classList.add('fa-eye');
+                }
+            });
+        }
+
         customerBtn.addEventListener('click', () => {
             customerBtn.classList.add('active');
             sellerBtn.classList.remove('active');
             userRoleInput.value = 'BUYER';
             submitBtn.innerHTML = '<i class="fas fa-user-plus"></i> Create Customer Account';
         });
-        
+
         sellerBtn.addEventListener('click', () => {
             sellerBtn.classList.add('active');
             customerBtn.classList.remove('active');
             userRoleInput.value = 'SELLER';
             submitBtn.innerHTML = '<i class="fas fa-store"></i> Create Seller Account';
         });
-        
-        document.getElementById('registerForm').addEventListener('submit', function(e) {
-            e.preventDefault();
-            
-            const username = document.getElementById('username').value;
-            const email = document.getElementById('email').value;
-            const password = document.getElementById('password').value;
-            const role = userRoleInput.value;
-            
-            const endpoint = role === 'SELLER' 
-                ? 'http://localhost:9090/api/auth/register/seller'
-                : 'http://localhost:9090/api/auth/register';
-            
-            fetch(endpoint, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({ username, email, password })
-            })
-            .then(response => {
-                if (!response.ok) throw new Error('Registration failed');
-                return response.json();
-            })
-            .then(data => {
-                alert('Registration successful! Please login.');
-                window.location.href = 'login.html';
-            })
-            .catch(error => {
-                alert('Registration failed: ' + error.message);
-            });
-        });
+        // Form submit is handled by main.js (handleRegister) - connects to backend API
     </script>
 </body>
+
 </html>

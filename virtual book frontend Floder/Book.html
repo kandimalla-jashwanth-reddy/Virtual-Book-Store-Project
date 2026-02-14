@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,6 +8,7 @@
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
+
 <body>
     <!-- Navigation Bar -->
     <nav class="navbar">
@@ -14,7 +16,7 @@
             <img src="images/logo.png" alt="Virtual Bookstore">
         </div>
         <div class="nav-search">
-           
+
             <input type="text" class="search-input" placeholder="Search for books...">
             <button class="search-button">
                 <i class="fas fa-search"></i>
@@ -105,30 +107,29 @@
     <script src="main.js"></script>
     <script>
         // Search functionality
-        const API_BASE_URL = "http://localhost:9090/api";
-        
+        // Search functionality
+
         document.addEventListener('DOMContentLoaded', () => {
             const searchInput = document.querySelector('.search-input');
             const searchButton = document.querySelector('.search-button');
             const booksContainer = document.getElementById('booksContainer');
-            
+
             // Check for search query in URL
             const urlParams = new URLSearchParams(window.location.search);
             const searchQuery = urlParams.get('search');
             if (searchQuery) {
                 searchInput.value = searchQuery;
                 performSearch();
-            } else {
-                loadBooks();
             }
-            
+
+
             function performSearch() {
                 const query = searchInput.value.trim();
                 if (!query) {
                     loadBooks();
                     return;
                 }
-                
+
                 fetch(`${API_BASE_URL}/books/search?q=${encodeURIComponent(query)}`)
                     .then(res => res.json())
                     .then(books => {
@@ -139,7 +140,7 @@
                         booksContainer.innerHTML = '<p>Error searching books</p>';
                     });
             }
-            
+
             searchButton.addEventListener('click', performSearch);
             searchInput.addEventListener('keypress', (e) => {
                 if (e.key === 'Enter') {
@@ -149,4 +150,5 @@
         });
     </script>
 </body>
+
 </html>

@@ -26,9 +26,9 @@ public class OrderItem {
     @Column(nullable = false)
     private Double price;
 
-    // Constructors
+
     public OrderItem() {
-        this.quantity = 1; // Default quantity
+        this.quantity = 1;
     }
 
     public OrderItem(Book book, Integer quantity) {
@@ -39,18 +39,22 @@ public class OrderItem {
 
     // Getters and Setters
     public Long getId() {
+
         return id;
     }
 
     public void setId(Long id) {
+
         this.id = id;
     }
 
     public Order getOrder() {
+
         return order;
     }
 
     public void setOrder(Order order) {
+
         this.order = order;
     }
 
@@ -84,7 +88,6 @@ public class OrderItem {
         this.price = price;
     }
 
-    // Helper method to calculate item total
     public Double getTotalPrice() {
         if (price != null) {
             return price;

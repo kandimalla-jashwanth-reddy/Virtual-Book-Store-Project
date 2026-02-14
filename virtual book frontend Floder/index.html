@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,6 +8,7 @@
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
+
 <body>
     <!-- Navigation Bar -->
     <nav class="navbar">
@@ -14,13 +16,6 @@
             <img src="images/logo.png" alt="Virtual Bookstore">
         </div>
         <div class="nav-search">
-            <select class="search-select">
-                <option>All Categories</option>
-                <option>Fiction</option>
-                <option>Non-Fiction</option>
-                <option>Science</option>
-                <option>Biography</option>
-            </select>
             <input type="text" class="search-input" placeholder="Search for books...">
             <button class="search-button">
                 <i class="fas fa-search"></i>
@@ -67,7 +62,7 @@
     </div>
 
     <!-- Book Categories -->
-    <div class="container">
+    <div class="container-full">
         <section class="book-section">
             <h2 class="section-title">Featured Books</h2>
             <div class="books-grid" id="featuredBooks">
@@ -125,16 +120,42 @@
         document.addEventListener('DOMContentLoaded', () => {
             const searchInput = document.querySelector('.search-input');
             const searchButton = document.querySelector('.search-button');
-            
-            function performSearch() {
+            const booksContainer = document.getElementById('featuredBooks');
+            const sectionTitle = document.querySelector('.section-title');
+
+            async function performSearch() {
                 const query = searchInput.value.trim();
-                if (query) {
-                    window.location.href = `Book.html?search=${encodeURIComponent(query)}`;
-                } else {
-                    window.location.href = 'Book.html';
+
+                if (!query) {
+                    // If search is cleared, reload featured books
+                    sectionTitle.textContent = "Featured Books";
+                    loadFeaturedBooks();
+                    return;
+                }
+
+                try {
+                    const res = await fetch(`${API_BASE_URL}/books/search?q=${encodeURIComponent(query)}`);
+                    if (!res.ok) throw new Error('Search failed');
+
+                    const books = await res.json();
+
+                    sectionTitle.textContent = `Search Results for "${query}"`;
+
+                    if (books.length === 0) {
+                        booksContainer.innerHTML = '<p style="grid-column: 1/-1; text-align: center; padding: 20px;">No books found matching your search.</p>';
+                    } else {
+                        renderBooks(books, booksContainer);
+                    }
+
+                    // Scroll to results
+                    booksContainer.scrollIntoView({ behavior: 'smooth', block: 'start' });
+
+                } catch (err) {
+                    console.error('Search error:', err);
+                    booksContainer.innerHTML = '<p>Error searching books. Please try again.</p>';
                 }
             }
-            
+
             searchButton.addEventListener('click', performSearch);
             searchInput.addEventListener('keypress', (e) => {
                 if (e.key === 'Enter') {
@@ -144,4 +165,5 @@
         });
     </script>
 </body>
+
 </html>

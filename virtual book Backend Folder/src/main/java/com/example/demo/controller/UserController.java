@@ -31,4 +31,16 @@ public class UserController {
         }
         return ResponseEntity.ok(user);
     }
+
+    @PutMapping("/{id}/bank-details")
+    public ResponseEntity<?> updateBankDetails(@PathVariable Long id,
+            @RequestBody java.util.Map<String, String> details) {
+        try {
+            userService.updateBankDetails(id, details.get("accountNumber"), details.get("ifscCode"),
+                    details.get("bankName"));
+            return ResponseEntity.ok("Bank details updated successfully");
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body("Error updating bank details: " + e.getMessage());
+        }
+    }
 }

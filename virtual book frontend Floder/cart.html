@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -12,37 +13,37 @@
             margin: 0 auto;
             padding: 20px;
         }
-        
+
         .cart-header {
             margin-bottom: 30px;
             border-bottom: 2px solid #e0e0e0;
             padding-bottom: 15px;
         }
-        
+
         .cart-content {
             display: grid;
             grid-template-columns: 2fr 1fr;
             gap: 30px;
         }
-        
+
         .cart-items {
             background: white;
             border-radius: 8px;
             padding: 20px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
         }
-        
+
         .cart-item {
             display: flex;
             gap: 20px;
             padding: 20px 0;
             border-bottom: 1px solid #eee;
         }
-        
+
         .cart-item:last-child {
             border-bottom: none;
         }
-        
+
         .cart-item-image {
             width: 120px;
             height: 160px;
@@ -52,47 +53,47 @@
             justify-content: center;
             border-radius: 4px;
         }
-        
+
         .cart-item-image img {
             max-width: 100%;
             max-height: 100%;
             object-fit: contain;
         }
-        
+
         .cart-item-details {
             flex: 1;
         }
-        
+
         .cart-item-title {
             font-size: 18px;
             font-weight: 600;
             margin-bottom: 5px;
         }
-        
+
         .cart-item-author {
             color: #666;
             margin-bottom: 10px;
         }
-        
+
         .cart-item-price {
             font-size: 18px;
             font-weight: bold;
             color: #B12704;
             margin-bottom: 15px;
         }
-        
+
         .cart-item-actions {
             display: flex;
             gap: 10px;
             align-items: center;
         }
-        
+
         .quantity-selector {
             display: flex;
             align-items: center;
             gap: 10px;
         }
-        
+
         .quantity-btn {
             width: 30px;
             height: 30px;
@@ -104,7 +105,7 @@
             align-items: center;
             justify-content: center;
         }
-        
+
         .quantity-input {
             width: 50px;
             text-align: center;
@@ -112,7 +113,7 @@
             border: 1px solid #ddd;
             border-radius: 4px;
         }
-        
+
         .remove-btn {
             color: #FF6B6B;
             background: none;
@@ -120,19 +121,19 @@
             cursor: pointer;
             font-size: 14px;
         }
-        
+
         .remove-btn:hover {
             text-decoration: underline;
         }
-        
+
         .cart-summary {
             background: white;
             border-radius: 8px;
             padding: 20px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
             height: fit-content;
         }
-        
+
         .summary-row {
             display: flex;
             justify-content: space-between;
@@ -140,13 +141,13 @@
             padding-bottom: 10px;
             border-bottom: 1px solid #eee;
         }
-        
+
         .summary-total {
             font-size: 20px;
             font-weight: bold;
             color: #B12704;
         }
-        
+
         .checkout-btn {
             width: 100%;
             padding: 15px;
@@ -160,32 +161,32 @@
             margin-top: 20px;
             transition: background 0.3s;
         }
-        
+
         .checkout-btn:hover {
             background: #e68a00;
         }
-        
+
         .empty-cart {
             text-align: center;
             padding: 60px 20px;
         }
-        
+
         .empty-cart i {
             font-size: 64px;
             color: #ddd;
             margin-bottom: 20px;
         }
-        
+
         .empty-cart h3 {
             margin-bottom: 10px;
             color: #333;
         }
-        
+
         .empty-cart p {
             color: #666;
             margin-bottom: 20px;
         }
-        
+
         .continue-shopping {
             display: inline-block;
             padding: 10px 30px;
@@ -195,22 +196,23 @@
             text-decoration: none;
             font-weight: 600;
         }
-        
+
         @media (max-width: 768px) {
             .cart-content {
                 grid-template-columns: 1fr;
             }
-            
+
             .cart-item {
                 flex-direction: column;
             }
-            
+
             .cart-item-image {
                 align-self: center;
             }
         }
     </style>
 </head>
+
 <body>
     <!-- Navigation Bar -->
     <nav class="navbar">
@@ -251,7 +253,7 @@
         <div class="cart-header">
             <h1><i class="fas fa-shopping-cart"></i> Shopping Cart</h1>
         </div>
-        
+
         <div id="cartContent">
             <!-- Cart items will be loaded here -->
             <div class="empty-cart">
@@ -315,12 +317,12 @@
             loadCart();
             updateCartCount();
         });
-        
+
         // Load cart items
         async function loadCart() {
             const cart = JSON.parse(localStorage.getItem('cart') || '[]');
             const container = document.getElementById('cartContent');
-            
+
             if (cart.length === 0) {
                 container.innerHTML = `
                     <div class="empty-cart">
@@ -334,25 +336,25 @@
                 `;
                 return;
             }
-            
+
             // Fetch book details for each item in cart
             let cartItemsHTML = '<div class="cart-content">';
             cartItemsHTML += '<div class="cart-items">';
-            
+
             let subtotal = 0;
             let totalItems = 0;
-            
+
             for (const item of cart) {
                 try {
                     const response = await fetch(`${API_BASE_URL}/books/${item.bookId}`);
                     if (!response.ok) continue;
-                    
+
                     const book = await response.json();
-                    
+
                     const itemTotal = book.price * item.quantity;
                     subtotal += itemTotal;
                     totalItems += item.quantity;
-                    
+
                     cartItemsHTML += `
                         <div class="cart-item" id="cart-item-${book.id}">
                             <div class="cart-item-image">
@@ -388,14 +390,14 @@
                     console.error('Error loading book:', error);
                 }
             }
-            
+
             cartItemsHTML += '</div>'; // Close cart-items
-            
+
             // Cart summary
             const shipping = 3.99;
             const tax = subtotal * 0.08; // 8% tax
             const total = subtotal + shipping + tax;
-            
+
             cartItemsHTML += `
                 <div class="cart-summary">
                     <h3>Order Summary</h3>
@@ -415,7 +417,7 @@
                         <span>Total</span>
                         <span>$${total.toFixed(2)}</span>
                     </div>
-                    <button class="checkout-btn" onclick="checkout()">
+                    <button class="checkout-btn" onclick="window.location.href='order_place.html'">
                         <i class="fas fa-lock"></i> Proceed to Checkout
                     </button>
                     <p style="text-align: center; margin-top: 10px; color: #666; font-size: 14px;">
@@ -423,12 +425,12 @@
                     </p>
                 </div>
             `;
-            
+
             cartItemsHTML += '</div>'; // Close cart-content
-            
+
             container.innerHTML = cartItemsHTML;
         }
-        
+
         // Update quantity
         function updateQuantity(bookId, newQuantity) {
             newQuantity = parseInt(newQuantity);
@@ -436,19 +438,19 @@
                 removeFromCart(bookId);
                 return;
             }
-            
+
             let cart = JSON.parse(localStorage.getItem('cart') || '[]');
             const itemIndex = cart.findIndex(item => item.bookId == bookId);
-            
+
             if (itemIndex > -1) {
                 cart[itemIndex].quantity = newQuantity;
             }
-            
+
             localStorage.setItem('cart', JSON.stringify(cart));
             loadCart();
             updateCartCount();
         }
-        
+
         // Remove from cart
         function removeFromCart(bookId) {
             let cart = JSON.parse(localStorage.getItem('cart') || '[]');
@@ -457,28 +459,28 @@
             loadCart();
             updateCartCount();
         }
-        
+
         // Note: cart count is handled by main.js's updateCartCount()
-        
+
         // Checkout
         async function checkout() {
             const token = localStorage.getItem('token');
             const user = JSON.parse(localStorage.getItem('user'));
             const cart = JSON.parse(localStorage.getItem('cart') || '[]');
-            
+
             if (!token || !user) {
                 alert('Please login to checkout');
                 window.location.href = 'login.html';
                 return;
             }
-            
+
             if (cart.length === 0) {
                 alert('Your cart is empty');
                 return;
             }
-            
+
             const bookIds = cart.map(item => item.bookId);
-            
+
             try {
                 const response = await fetch(`${API_BASE_URL}/orders/place-by-ids`, {
                     method: 'POST',
@@ -491,23 +493,24 @@
                         bookIds: bookIds
                     })
                 });
-                
+
                 if (!response.ok) {
                     const error = await response.text();
                     throw new Error(error);
                 }
-                
+
                 // Clear cart
                 localStorage.removeItem('cart');
                 updateCartCount();
-                
+
                 alert('Order placed successfully!');
                 window.location.href = 'orders.html';
-                
+
             } catch (error) {
                 alert('Checkout failed: ' + error.message);
             }
         }
     </script>
 </body>
+
 </html>

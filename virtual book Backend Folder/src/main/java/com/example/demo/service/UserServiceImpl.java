@@ -29,4 +29,13 @@ public class UserServiceImpl implements UserService {
     public Optional<User> findByUsername(String username) {
         return userRepository.findByUsername(username);
     }
+
+    @Override
+    public void updateBankDetails(Long userId, String account, String ifsc, String bankName) {
+        User user = getUserById(userId);
+        user.setBankAccountNumber(account);
+        user.setIfscCode(ifsc);
+        user.setBankName(bankName);
+        userRepository.save(user);
+    }
 }

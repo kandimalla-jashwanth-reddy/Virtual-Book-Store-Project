@@ -45,7 +45,8 @@ public class AuthServiceImpl implements AuthService {
 
         String token = jwtUtil.generateToken(savedUser.getEmail(), savedUser.getRole());
 
-        return new AuthResponse(token, savedUser.getId(), savedUser.getUsername(), savedUser.getEmail(), savedUser.getRole());
+        return new AuthResponse(token, savedUser.getId(), savedUser.getUsername(), savedUser.getEmail(),
+                savedUser.getRole());
     }
 
     @Override
@@ -65,15 +66,15 @@ public class AuthServiceImpl implements AuthService {
 
         String token = jwtUtil.generateToken(savedUser.getEmail(), savedUser.getRole());
 
-        return new AuthResponse(token, savedUser.getId(), savedUser.getUsername(), savedUser.getEmail(), savedUser.getRole());
+        return new AuthResponse(token, savedUser.getId(), savedUser.getUsername(), savedUser.getEmail(),
+                savedUser.getRole());
     }
 
     @Override
     public AuthResponse login(LoginRequest request) {
         try {
             Authentication authentication = authenticationManager.authenticate(
-                    new UsernamePasswordAuthenticationToken(request.getUsername(), request.getPassword())
-            );
+                    new UsernamePasswordAuthenticationToken(request.getUsername(), request.getPassword()));
 
             User user = userRepository.findByUsername(request.getUsername())
                     .orElseGet(() -> userRepository.findByEmail(request.getUsername()).orElse(null));
@@ -81,10 +82,16 @@ public class AuthServiceImpl implements AuthService {
                 throw new RuntimeException("User not found");
             }
 
+            // Explicitly check password match as a failsafe
+            if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
+                throw new RuntimeException("Invalid username or password");
+            }
+
             String token = jwtUtil.generateToken(user.getEmail(), user.getRole());
 
             return new AuthResponse(token, user.getId(), user.getUsername(), user.getEmail(), user.getRole());
         } catch (Exception e) {
+            e.printStackTrace(); // Log the error for debugging
             throw new RuntimeException("Invalid username or password");
         }
     }
